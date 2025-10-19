@@ -1,6 +1,6 @@
 # evo2-mcp
 
-[![[docs/biocontext.svg]]](https://biocontext.ai/registry)
+![BioContext Badge](https://github.com/not-a-feature/evo2-mcp/blob/master/docs/biocontext.svg)
 [![Tests][badge-tests]][tests]
 [![Documentation][badge-docs]][documentation]
 
@@ -20,7 +20,7 @@ You can also find the project on [BioContextAI](https://biocontext.ai), the comm
 
 ### Prerequisites
 
-You need to have Python 3.11 or newer installed on your system.
+You need to have Python 3.12 or newer installed on your system.
 If you don't have Python installed, we recommend installing [uv][].
 
 ### Installing Evo2 Dependencies (Required)
@@ -64,7 +64,7 @@ uvx evo2_mcp
       "command": "uvx",
       "args": ["evo2_mcp"],
       "env": {
-        "UV_PYTHON": "3.12" // or required version
+        "UV_PYTHON": "3.12"
       }
     }
   }
