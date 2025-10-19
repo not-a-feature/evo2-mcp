@@ -94,7 +94,6 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "click": ("https://click.palletsprojects.com/en/stable/", None),
     "torch": ("https://docs.pytorch.org/docs/stable/", None),
-    "fastmcp": ("https://fastmcp.wiki/", None),
 }
 
 # List of patterns, relative to source directory, that match files and
