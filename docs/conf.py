@@ -58,7 +58,14 @@ extensions = [
     "autoapi.extension",
 ]
 autoapi_dirs = ["../src/evo2_mcp"]
-autosummary_generate = True
+autoapi_root = "autoapi"
+autoapi_ignore = ["*/tests/*"]
+autoapi_options = [
+    "members",
+    "undoc-members",
+    "show-inheritance",
+    "show-module-summary",
+]
 autodoc_member_order = "groupwise"
 default_role = "literal"
 napoleon_google_docstring = False
