@@ -145,5 +145,5 @@ For the underlying Evo 2 model, please also cite the original Evo 2 publication.
 [tests]: https://github.com/not-a-feature/evo2-mcp/actions/workflows/test.yaml
 [documentation]: https://evo2-mcp.readthedocs.io
 [changelog]: https://evo2-mcp.readthedocs.io/en/latest/changelog.html
-[api documentation]: https://evo2-mcp.readthedocs.io/en/latest/api.html
+[api documentation]: https://evo2-mcp.readthedocs.io/en/latest/autoapi/evo2_mcp/index.html
 [pypi]: https://pypi.org/project/evo2-mcp
