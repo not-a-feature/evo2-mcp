@@ -48,6 +48,7 @@ html_context = {
 extensions = [
     "myst_nb",
     "sphinx_copybutton",
+    "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
@@ -66,6 +67,9 @@ autoapi_options = [
     "show-inheritance",
     "show-module-summary",
 ]
+autoapi_keep_files = False
+
+
 autodoc_member_order = "groupwise"
 default_role = "literal"
 napoleon_google_docstring = False
@@ -89,12 +93,15 @@ nb_merge_streams = True
 typehints_defaults = "braces"
 suppress_warnings = [
     "toc.not_included",
+    "autodoc.import_object",
+    "autoapi.python_import_resolution",
 ]
 
 source_suffix = {
     ".rst": "restructuredtext",
     ".ipynb": "myst-nb",
     ".myst": "myst-nb",
+    ".md": "myst-nb",
 }
 
 intersphinx_mapping = {
@@ -103,7 +110,7 @@ intersphinx_mapping = {
     "scanpy": ("https://scanpy.readthedocs.io/en/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "click": ("https://click.palletsprojects.com/en/stable/", None),
-    "torch": ("https://docs.pytorch.org/docs/stable/", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
 }
 
 # List of patterns, relative to source directory, that match files and
@@ -137,4 +144,5 @@ nitpick_ignore = [
     # you can add an exception to this list.
     #     ("py:class", "igraph.Graph"),
     ("py:class", "fastmcp.FastMCP"),
+    ("py:class", "fastmcp.tools.FunctionTool"),
 ]

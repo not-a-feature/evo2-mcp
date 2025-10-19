@@ -1,10 +1,12 @@
 # evo2-mcp
 
+![evo2-mcp banner](https://raw.githubusercontent.com/not-a-feature/evo2-mcp/main/docs/_static/evo2-mcp.png)
+
 <a href="https://biocontext.ai/registry/not-a-feature/evo2-mcp">![BioContext][badge-biocontext]</a>
 [![Tests][badge-tests]][tests]
 [![Documentation][badge-docs]][documentation]
 
-[badge-biocontext]: https://raw.githubusercontent.com/not-a-feature/evo2-mcp/main/docs/biocontext.png
+[badge-biocontext]: https://raw.githubusercontent.com/not-a-feature/evo2-mcp/main/docs/_static/biocontext.png
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/not-a-feature/evo2-mcp/test.yaml?branch=main
 [badge-docs]: https://img.shields.io/readthedocs/evo2-mcp
 
@@ -139,6 +141,10 @@ If you use evo2-mcp in your research, please cite:
 ```
 
 For the underlying Evo 2 model, please also cite the original Evo 2 publication.
+
+## License and Attribution
+
+The banner image in this repository is a modified version of the original [Evo 2 banner](https://github.com/ArcInstitute/evo2/blob/main/evo2.jpg) from the [Evo 2 project](https://github.com/ArcInstitute/evo2), which is released under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0). It was modified using Google Gemini "Nanobana" and GIMP.
 
 [uv]: https://github.com/astral-sh/uv
 [issue tracker]: https://github.com/not-a-feature/evo2-mcp/issues

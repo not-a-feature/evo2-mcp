@@ -12,8 +12,15 @@ changelog
 ```
 
 ```{toctree}
+:caption: Tools & Usage
+:maxdepth: 2
+
+tools
+```
+
+```{toctree}
 :caption: API Documentation
 :maxdepth: 2
 
-autoapi/evo2_mcp/index
+autoapi/index
 ```
