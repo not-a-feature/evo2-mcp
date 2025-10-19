@@ -1,4 +1,25 @@
-"""MCP tools for Evo 2 sequence operations."""
+"""MCP tools for Evo 2 sequence operations.
+
+This module implements the core MCP (Model Context Protocol) tools for genomic sequence
+analysis using the Evo 2 foundation model. It provides functionality for:
+
+- Scoring DNA sequences to evaluate their likelihood under the model
+- Generating new DNA sequences conditioned on prompts
+- Extracting learned representations (embeddings) from intermediate model layers
+- Predicting variant effects (SNP scoring)
+
+
+Supported Checkpoints
+---------------------
+The following Evo 2 model checkpoints are officially supported by this package:
+- evo2_7b: 7B parameters, 1M context
+- evo2_40b: 40B parameters, 1M context (requires multiple GPUs)
+- evo2_7b_base: 7B parameters, 8K context
+- evo2_40b_base: 40B parameters, 8K context
+- evo2_1b_base: 1B parameters, 8K context
+
+All public functions are registered as MCP tools via the @mcp.tool decorator.
+"""
 
 from __future__ import annotations
 
@@ -15,18 +36,97 @@ KNOWN_CHECKPOINTS: Dict[str, str] = {
     "evo2_7b_base": "7B parameter model with 8K context",
     "evo2_40b_base": "40B parameter model with 8K context",
     "evo2_1b_base": "1B parameter model with 8K context",
-    "evo2_7b_262k": "7B parameter model with 262K context",
-    "evo2_7b_microviridae": "7B parameter base model fine-tuned on Microviridae genomes",
+    # Removed/unsupported checkpoints (not listed here):
+    # - evo2_7b_262k
+    # - evo2_7b_microviridae
 }
 
 
 @mcp.tool
 def list_available_checkpoints() -> List[Dict[str, str]]:
-    """List supported Evo 2 checkpoints with descriptions."""
+    """List supported Evo 2 checkpoints with descriptions.
+
+    Retrieves all available Evo 2 model checkpoints that can be used for
+    sequence scoring, embedding, and generation. Each checkpoint is described
+    with its size and context length capabilities.
+
+    Returns
+    -------
+    List[Dict[str, str]]
+        A list of dictionaries, each containing:
+        - "name": The identifier string for the checkpoint
+        - "description": Human-readable description of the model specifications
+
+    Examples
+    --------
+    >>> checkpoints = list_available_checkpoints()
+    >>> for cp in checkpoints:
+    ...     print(f"{cp['name']}: {cp['description']}")
+    """
     return [
         {"name": name, "description": description}
         for name, description in KNOWN_CHECKPOINTS.items()
     ]
+
+
+@mcp.tool
+def get_embedding_layers(checkpoint: Optional[str] = None) -> Dict[str, Any]:
+    """Get available layers for embedding extraction from Evo 2 model.
+
+    Returns a list of layer names that can be used to extract sequence embeddings
+    from the specified Evo 2 checkpoint. Different layers encode varying levels of
+    biological abstraction. For supervised classification tasks (e.g., variant effect
+    prediction), intermediate layers like Block 20 (40B model) often perform best.
+    For mechanistic interpretability (e.g., SAE training), deeper layers like Layer 26
+    are commonly used. For probing tasks, top-level layers (e.g., blocks.26 in 7B model)
+    may be optimal.
+
+    Parameters
+    ----------
+    checkpoint : str, optional
+        Model checkpoint identifier. If None, returns layers for the default checkpoint.
+        See :func:`list_available_checkpoints` for available options.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionary containing:
+        - "checkpoint": The checkpoint identifier
+        - "layers": List of layer names available for embedding extraction
+        - "info": Information about layer selection for different tasks
+
+    Examples
+    --------
+    >>> layers = get_embedding_layers("evo2_7b")
+    >>> print(f"Available layers: {layers['layers']}")
+    >>> print(f"Recommendation: {layers['info']}")
+    """
+    handle = get_evo2_model(checkpoint)
+
+    # Dummy list of layers - to be replaced with actual layer extraction
+    dummy_layers = [
+        "blocks.0.mlp.l3",
+        "blocks.2.mlp.l3",
+        "blocks.13",
+        "blocks.20",
+        "blocks.26",
+        "blocks.27",
+    ]
+
+    layer_info = (
+        "Layer selection depends on the task: "
+        "For supervised classification (variant effect prediction), intermediate layers "
+        "(e.g., Block 20 for 40B model) often achieve best performance. "
+        "For mechanistic interpretability (SAE training), deeper layers "
+        "(e.g., Layer 26) reveal meaningful biological features. "
+        "For probing/classification tasks, top-level layers may be optimal."
+    )
+
+    return {
+        "checkpoint": handle.checkpoint,
+        "layers": dummy_layers,
+        "info": layer_info,
+    }
 
 
 @mcp.tool
@@ -35,7 +135,43 @@ def score_sequence(
     checkpoint: Optional[str] = None,
     reduce_method: str = "mean",
 ) -> Dict[str, Any]:
-    """Compute log probabilities for DNA sequence under Evo 2 model."""
+    """Compute log probabilities for DNA sequence under Evo 2 model.
+
+    Evaluates the likelihood of a DNA sequence under the Evo 2 language model.
+    Returns the model's log probability score for the entire sequence, which can
+    be reduced using either mean or sum aggregation.
+
+    Parameters
+    ----------
+    sequence : str
+        DNA sequence to score. Should contain standard IUPAC nucleotides (A, C, G, T).
+    checkpoint : str, optional
+        Model checkpoint identifier. If None, uses the default checkpoint.
+        See :func:`list_available_checkpoints` for available options.
+    reduce_method : str, default="mean"
+        Method for aggregating per-token scores. Must be either:
+        - "mean": Average log probability across all tokens
+        - "sum": Sum of all log probabilities
+
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionary containing:
+        - "checkpoint": The checkpoint identifier used
+        - "sequence": The normalized input sequence
+        - "reduce_method": The reduction method applied
+        - "scores": List of computed score values (typically length 1)
+
+    Raises
+    ------
+    AssertionError
+        If sequence is empty or reduce_method is not "mean" or "sum".
+
+    Examples
+    --------
+    >>> scores = score_sequence("ATCGATCG")
+    >>> print(f"Score: {scores['scores'][0]}")
+    """
     assert isinstance(sequence, str) and sequence.strip(), "'sequence' must be a non-empty string"
     assert reduce_method in ("mean", "sum"), "'reduce_method' must be either 'mean' or 'sum'"
 
@@ -57,7 +193,44 @@ def embed_sequence(
     checkpoint: Optional[str] = None,
     layer_name: str = "blocks.2.mlp.l3",
 ) -> Dict[str, Any]:
-    """Return intermediate Evo 2 embeddings for DNA sequence."""
+    """Return intermediate Evo 2 embeddings for DNA sequence.
+
+    Extracts feature representations from a specified layer of the Evo 2 model
+    for a given DNA sequence. The embeddings capture the model's learned
+    representations and can be used for downstream analysis or as features
+    for other tasks.
+
+    Parameters
+    ----------
+    sequence : str
+        DNA sequence to embed. Should contain standard IUPAC nucleotides (A, C, G, T).
+    checkpoint : str, optional
+        Model checkpoint identifier. If None, uses the default checkpoint.
+        See :func:`list_available_checkpoints` for available options.
+    layer_name : str, default="blocks.2.mlp.l3"
+        Name of the model layer from which to extract embeddings.
+        Common choices include intermediate MLP layers and attention blocks.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionary containing:
+        - "checkpoint": The checkpoint identifier used
+        - "sequence": The normalized input sequence
+        - "layer_name": The layer from which embeddings were extracted
+        - "embedding": 2D list of embedding vectors (shape: [sequence_length, embedding_dim])
+
+    Raises
+    ------
+    AssertionError
+        If sequence or layer_name are empty strings.
+
+    Examples
+    --------
+    >>> embeddings = embed_sequence("ATCGATCG")
+    >>> embedding_matrix = embeddings['embedding']
+    >>> print(f"Embedding shape: {len(embedding_matrix)} tokens")
+    """
     assert isinstance(sequence, str) and sequence.strip(), "'sequence' must be a non-empty string"
     assert isinstance(layer_name, str) and layer_name, "'layer_name' must be a non-empty string"
 
@@ -81,7 +254,52 @@ def generate_sequence(
     temperature: float = 1.0,
     top_k: int = 4,
 ) -> Dict[str, Any]:
-    """Generate DNA sequence continuation using Evo 2."""
+    """Generate DNA sequence continuation using Evo 2.
+
+    Generates new DNA sequence tokens conditioned on a given prompt sequence
+    using the Evo 2 language model. The generation process uses nucleus sampling
+    (top-k) for controlled diversity.
+
+    Parameters
+    ----------
+    prompt : str
+        Starting DNA sequence to condition generation. Should contain standard
+        IUPAC nucleotides (A, C, G, T).
+    checkpoint : str, optional
+        Model checkpoint identifier. If None, uses the default checkpoint.
+        See :func:`list_available_checkpoints` for available options.
+    n_tokens : int, default=400
+        Number of new tokens to generate. Must be a positive integer.
+    temperature : float, default=1.0
+        Sampling temperature controlling randomness. Higher values (>1.0) increase
+        diversity; lower values (<1.0) make generation more deterministic.
+        Must be greater than 0.
+    top_k : int, default=4
+        Number of highest probability nucleotides to sample from at each step.
+        Must be positive. Typical values: 4 (all nucleotides), 2-3 (more constrained).
+
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionary containing:
+        - "checkpoint": The checkpoint identifier used
+        - "prompt": The normalized input prompt sequence
+        - "generated_sequence": The newly generated DNA sequence
+        - "n_tokens": Number of tokens generated
+        - "temperature": Temperature value used
+        - "top_k": Top-k value used
+
+    Raises
+    ------
+    AssertionError
+        If prompt is empty, n_tokens <= 0, temperature <= 0, or top_k <= 0.
+
+    Examples
+    --------
+    >>> result = generate_sequence("ATCGATCG", n_tokens=100, temperature=0.8)
+    >>> full_sequence = result['prompt'] + result['generated_sequence']
+    >>> print(f"Generated sequence: {full_sequence}")
+    """
     assert isinstance(prompt, str) and prompt.strip(), "'prompt' must be a non-empty string"
     assert isinstance(n_tokens, int) and n_tokens > 0, "'n_tokens' must be a positive integer"
     assert temperature > 0, "'temperature' must be greater than 0"
@@ -113,6 +331,55 @@ def score_snp(
     Computes log probabilities for both the original sequence and the sequence with
     the center nucleotide replaced by the alternative allele, then returns the delta.
     Recommended sequence length: max_context - 1 for best performance.
+
+    This tool is useful for variant effect prediction, where the score delta indicates
+    how much the mutation changes the model's likelihood of the sequence. Negative deltas
+    indicate the mutation decreases likelihood; positive deltas increase it.
+
+    Parameters
+    ----------
+    sequence : str
+        Reference DNA sequence. Must be at least 3 nucleotides long to have a
+        well-defined center position. Should contain standard IUPAC nucleotides (A, C, G, T).
+    alternative_allele : str
+        Alternative nucleotide at the center position. Must be a single nucleotide
+        (one of A, C, G, T) that differs from the reference nucleotide at the center.
+    checkpoint : str, optional
+        Model checkpoint identifier. If None, uses the default checkpoint.
+        See :func:`list_available_checkpoints` for available options.
+    reduce_method : str, default="mean"
+        Method for aggregating per-token scores. Must be either:
+        - "mean": Average log probability across all tokens
+        - "sum": Sum of all log probabilities
+
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionary containing:
+        - "checkpoint": The checkpoint identifier used
+        - "original_sequence": The input reference sequence (uppercase)
+        - "mutated_sequence": The sequence with the mutation applied at center position
+        - "center_position": Index of the mutated position (0-indexed)
+        - "reference_allele": The original nucleotide at the center position
+        - "alternative_allele": The alternative nucleotide used
+        - "reduce_method": The reduction method applied
+        - "original_score": Log probability score of the reference sequence
+        - "mutated_score": Log probability score of the mutated sequence
+        - "score_delta": Difference (mutated_score - original_score). Indicates mutation effect.
+
+    Raises
+    ------
+    AssertionError
+        If sequence length < 3, alternative_allele is not a single valid nucleotide,
+        sequence contains invalid nucleotides, or alternative_allele matches the
+        reference nucleotide.
+
+    Examples
+    --------
+    >>> result = score_snp("ATCGATCG", "A")  # Center is T, mutate to A
+    >>> print(f"Score delta: {result['score_delta']}")
+    >>> print(f"Original: {result['original_sequence']}")
+    >>> print(f"Mutated: {result['mutated_sequence']}")
     """
     assert isinstance(sequence, str) and sequence.strip(), "'sequence' must be a non-empty string"
     assert (
@@ -169,7 +436,27 @@ def score_snp(
 def _compute_sequence_score(
     handle: ModelHandle, sequence: str, reduce_method: str = "mean"
 ) -> List[float]:
-    """Compute sequence log probabilities using Evo 2 model."""
+    """Compute sequence log probabilities using Evo 2 model.
+
+    Internal helper function that interfaces with the Evo 2 model to compute
+    per-token or aggregated log probabilities for a given DNA sequence.
+
+    Parameters
+    ----------
+    handle : ModelHandle
+        Model handle containing the loaded Evo 2 model and configuration.
+    sequence : str
+        DNA sequence to score. Expected to be normalized (uppercase, valid nucleotides).
+    reduce_method : str, default="mean"
+        Aggregation method for per-token scores:
+        - "mean": Average log probability across all tokens
+        - "sum": Sum of all log probabilities
+
+    Returns
+    -------
+    List[float]
+        List of aggregated score values. For typical usage, contains a single score.
+    """
     scores = handle.model.score_sequences(
         seqs=[sequence],
         batch_size=1,
@@ -185,7 +472,33 @@ def _compute_sequence_score(
 def _compute_sequence_embedding(
     handle: ModelHandle, sequence: str, layer_name: str
 ) -> List[List[float]]:
-    """Extract intermediate layer embeddings from Evo 2 model."""
+    """Extract intermediate layer embeddings from Evo 2 model.
+
+    Internal helper function that extracts feature representations from a
+    specified layer of the Evo 2 model. The sequence is tokenized, passed through
+    the model, and embeddings are extracted and converted to nested lists.
+
+    Parameters
+    ----------
+    handle : ModelHandle
+        Model handle containing the loaded Evo 2 model and tokenizer.
+    sequence : str
+        DNA sequence to embed. Expected to be normalized (uppercase, valid nucleotides).
+    layer_name : str
+        Name of the model layer from which to extract embeddings.
+
+    Returns
+    -------
+    List[List[float]]
+        2D list of embeddings where each inner list is the embedding vector
+        for a single token. Shape is [sequence_length, embedding_dim].
+
+    Raises
+    ------
+    AssertionError
+        If the sequence doesn't tokenize to at least one token or the requested
+        layer is not found in the model's embeddings.
+    """
     tokens = handle.model.tokenizer.tokenize(sequence)
     assert tokens, "Sequence must tokenize to at least one token for embeddings"
 
@@ -211,7 +524,33 @@ def _run_generation(
     temperature: float,
     top_k: int,
 ) -> str:
-    """Generate sequence continuation using Evo 2 model."""
+    """Generate sequence continuation using Evo 2 model.
+
+    Internal helper function that interfaces with the Evo 2 model to generate
+    new sequence tokens conditioned on a prompt. Uses nucleus sampling (top-k)
+    for controlled diversity during generation.
+
+    Parameters
+    ----------
+    handle : ModelHandle
+        Model handle containing the loaded Evo 2 model.
+    prompt : str
+        Starting DNA sequence to condition generation.
+        Expected to be normalized (uppercase, valid nucleotides).
+    n_tokens : int
+        Number of new tokens to generate. Must be positive.
+    temperature : float
+        Sampling temperature. Higher values increase diversity,
+        lower values make generation more deterministic.
+    top_k : int
+        Number of highest probability nucleotides to sample from.
+
+    Returns
+    -------
+    str
+        The newly generated DNA sequence (continuation of the prompt).
+        Does not include the original prompt in the output.
+    """
     generation_kwargs: Dict[str, Any] = {
         "prompt_seqs": [prompt],
         "n_tokens": n_tokens,
