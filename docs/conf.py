@@ -93,6 +93,8 @@ intersphinx_mapping = {
     "scanpy": ("https://scanpy.readthedocs.io/en/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "click": ("https://click.palletsprojects.com/en/stable/", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
+    "fastmcp": ("https://docs.modelcontextprotocol.io/en/latest/", None),
 }
 
 # List of patterns, relative to source directory, that match files and
