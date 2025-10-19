@@ -4,7 +4,7 @@
 [![Tests][badge-tests]][tests]
 [![Documentation][badge-docs]][documentation]
 
-[badge-biocontext]: docs/biocontext.svg
+[badge-biocontext]: docs/biocontext.png
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/not-a-feature/evo2-mcp/test.yaml?branch=main
 [badge-docs]: https://img.shields.io/readthedocs/evo2-mcp
 
