@@ -80,6 +80,9 @@ nb_output_stderr = "remove"
 nb_execution_mode = "off"
 nb_merge_streams = True
 typehints_defaults = "braces"
+suppress_warnings = [
+    "toc.not_included",
+]
 
 source_suffix = {
     ".rst": "restructuredtext",
