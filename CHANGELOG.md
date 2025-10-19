@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tools for sequence generation, scoring, and embedding
 - Dummy implementation for testing without GPU/model requirements
 - Comprehensive installation documentation
-- Support for Python 3.11, 3.12, and 3.13
+- Support for Python 3.12, and 3.13
 - CI/CD pipelines with GitHub Actions
 - Documentation hosted on ReadTheDocs
 - Test suite with pytest

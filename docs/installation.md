@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Python 3.11 or newer**
+- **Python 3.12 or newer**
 - **Conda** (recommended for managing CUDA dependencies)
 - **NVIDIA GPU** with CUDA support (required for Evo2)
 
@@ -85,7 +85,7 @@ To use this server with an MCP client, add the following to your `mcp.json` conf
       "command": "uvx",
       "args": ["evo2_mcp"],
       "env": {
-        "UV_PYTHON": "3.11"
+        "UV_PYTHON": "3.12"
       }
     }
   }

@@ -140,7 +140,7 @@ See the [installation guide](https://evo2-mcp.readthedocs.io/en/latest/installat
 ### Tests fail
 - Ensure test dependencies are installed: `pip install -e ".[test]"`
 - Check that `EVO2_MCP_USE_DUMMY=true` is set if Evo2 is not installed
-- Verify Python version is 3.11+
+- Verify Python version is 3.12+
 
 ### Import errors after installation
 - Check that `src/evo2_mcp/__init__.py` exists
