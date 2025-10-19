@@ -1,9 +1,10 @@
 # evo2-mcp
 
-![BioContext Badge](https://github.com/not-a-feature/evo2-mcp/blob/master/docs/biocontext.svg)
+<a href="https://biocontext.ai/registry/not-a-feature/evo2-mcp">![BioContext][badge-biocontext]</a>
 [![Tests][badge-tests]][tests]
 [![Documentation][badge-docs]][documentation]
 
+[badge-biocontext]: docs/biocontext.svg
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/not-a-feature/evo2-mcp/test.yaml?branch=main
 [badge-docs]: https://img.shields.io/readthedocs/evo2-mcp
 
