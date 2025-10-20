@@ -92,20 +92,21 @@ def get_embedding_layers(
     checkpoint: str,
     which: str = "recommended",
 ) -> Dict[str, Any]:
-    """Get available layers for embedding extraction from Evo 2 model.
+    """Get available layers for embedding extraction for a specific Evo 2 model.
 
     Returns a list of layer names that can be used to extract sequence embeddings
     from the specified Evo 2 checkpoint. Different layers encode varying levels of
     biological abstraction. Larger models tend to have more nuanced representations but require
-    more computational resources. For supervised classification tasks (e.g., variant effect
-    prediction), intermediate layers like Block 20 (40B model) often perform best. For mechanistic
-    interpretability (e.g., SAE training), deeper layers like Layer 26 are commonly used. For
-    probing tasks, top-level layers (e.g., blocks.26 in 7B model) may be optimal.
+    more computational resources. Different checkpoints have a different set of layers.
+    For supervised classification tasks (e.g., variant effect prediction), intermediate layers
+    like Block 20 (40B model) often perform best. For mechanistic interpretability
+    (e.g., SAE training), deeper layers like Layer 26 are commonly used. For probing tasks,
+    top-level layers (e.g., blocks.26 in 7B model) may be optimal.
 
     Parameters
     ----------
     checkpoint : str
-        Model checkpoint identifier.
+        Model checkpoint identifier. Required as different checkpoints have different layer sets.
         See :func:`list_available_checkpoints` for available options.
     which : {"recommended", "all"}, optional
         Selection switch. "recommended" returns a curated subset of layers suitable for
@@ -152,7 +153,7 @@ def get_embedding_layers(
 
     layer_info = (
         "Layer selection depends on the task. Recommended subset includes early, mid, and deep MLP layers "
-        "(e.g., blocks.2.mlp.l3, blocks.13.mlp.l3, blocks.20.mlp.l3, blocks.26.mlp.l3) along with encoder norms. "
+        "(e.g., blocks.2.mlp.l3, blocks.13.mlp.l3, blocks.20.mlp.l3) along with encoder norms. "
         "Use which='all' to access every available layer."
     )
 
