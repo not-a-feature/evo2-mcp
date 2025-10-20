@@ -9,7 +9,7 @@
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/not-a-feature/evo2-mcp/test.yaml?branch=main
 [badge-docs]: https://img.shields.io/readthedocs/evo2-mcp
 
-MCP server for generating, scoreing and embedding genomic sequences using Evo 2
+The evo2-mcp server exposes Evo 2 as a Model Context Protocol (MCP) server, providing tools for genomic sequence analysis. Any MCP-compatible client can use these tools to score, embed, and generate DNA sequences.
 
 ## Getting started
 
