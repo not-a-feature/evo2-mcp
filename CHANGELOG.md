@@ -7,31 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-10-20
+
+### Added
+- `get_embedding_layers`: New tool to list available layers for embedding extraction from Evo2 checkpoints
+- Support for layer discovery and selection guidance for downstream tasks
+
 ## [0.1.0] - 2025-10-19
 
 ### Added
 - Initial release of evo2-mcp
 - MCP server implementation for Evo2 genomic sequence operations
 - Tools for sequence generation, scoring, and embedding
-- Dummy implementation for testing without GPU/model requirements
-- Comprehensive installation documentation
-- Support for Python 3.12, and 3.13
-- CI/CD pipelines with GitHub Actions
-- Documentation hosted on ReadTheDocs
-- Test suite with pytest
-- BioContextAI registry integration
-
-### Features
 - `generate_sequence`: Generate genomic sequences using Evo2
 - `score_sequence`: Score genomic sequences
 - `embed_sequence`: Generate embeddings for genomic sequences
-- Environment variable `EVO2_MCP_USE_DUMMY` for development mode
+- `score_snp`: SNP variant effect prediction
+- Dummy implementation for testing without GPU/model requirements
+- Support for Python 3.12 and 3.13
+- Test suite with pytest
 
-### Documentation
-- Installation guide with detailed Evo2 dependency setup
-- API documentation
-- Dummy vs Real implementation comparison
-- MCP client configuration examples
-
-[Unreleased]: https://github.com/not-a-feature/evo2-mcp/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/not-a-feature/evo2-mcp/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/not-a-feature/evo2-mcp/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/not-a-feature/evo2-mcp/releases/tag/v0.1.0
