@@ -48,19 +48,7 @@ pip install evo2
 
 ### 2. Install evo2-mcp
 
-After completing all Evo2 dependencies, you can install the MCP server using one of the following methods:
-
-#### Option A: Using uvx (Recommended)
-
-Run directly without installation:
-
-```bash
-uvx evo2_mcp
-```
-
-#### Option B: Using pip
-
-Install as a package:
+After completing all Evo2 dependencies, you can install the MCP server using pip:
 
 ```bash
 pip install evo2_mcp
@@ -74,25 +62,7 @@ For development or latest changes:
 pip install git+https://github.com/not-a-feature/evo2-mcp.git@main
 ```
 
-### 3. MCP Client Configuration
-
 To use this server with an MCP client, add the following to your `mcp.json` configuration:
-
-```json
-{
-  "mcpServers": {
-    "evo2-mcp": {
-      "command": "uvx",
-      "args": ["evo2_mcp"],
-      "env": {
-        "UV_PYTHON": "3.12"
-      }
-    }
-  }
-}
-```
-
-Or if you installed via pip:
 
 ```json
 {

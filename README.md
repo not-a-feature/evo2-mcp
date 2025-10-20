@@ -23,7 +23,6 @@ You can also find the project on [BioContextAI](https://biocontext.ai), the comm
 ### Prerequisites
 
 You need to have Python 3.12 or newer installed on your system.
-If you don't have Python installed, we recommend installing [uv][].
 
 ### Installing Evo2 Dependencies (Required)
 
@@ -49,31 +48,7 @@ This installation order is **strongly recommended** to ensure all dependencies a
 
 ### Installing evo2-mcp
 
-Once Evo2 is installed, there are several options to install evo2-mcp:
-
-1. Use `uvx` to run it immediately:
-
-```bash
-uvx evo2_mcp
-```
-
-2. Include it in one of various clients that supports the `mcp.json` standard, please use:
-
-```json
-{
-  "mcpServers": {
-    "server-name": {
-      "command": "uvx",
-      "args": ["evo2_mcp"],
-      "env": {
-        "UV_PYTHON": "3.12"
-      }
-    }
-  }
-}
-```
-
-3. Install it through `pip`:
+Once Evo2 is installed, you can install `evo2-mcp` via pip:
 
 ```bash
 pip install --user evo2_mcp
