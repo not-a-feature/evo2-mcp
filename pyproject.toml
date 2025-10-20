@@ -42,6 +42,7 @@ dependencies = [
   # "session-info2",
   "click",
   "fastmcp",
+  "numpy",
   "torch",
 ]
 optional-dependencies.evo2 = [
