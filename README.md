@@ -136,7 +136,7 @@ If you use evo2-mcp in your research, please cite:
   title = {evo2-mcp: MCP server for Evo 2 genomic sequence operations},
   year = {2025},
   url = {https://github.com/not-a-feature/evo2-mcp},
-  version = {0.1.0}
+  version = {0.2.0}
 }
 ```
 
