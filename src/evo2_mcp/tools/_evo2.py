@@ -25,6 +25,9 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
+import json
+from pathlib import Path
+
 import torch  # type: ignore[import]
 
 from evo2_mcp.mcp import mcp
@@ -40,6 +43,21 @@ KNOWN_CHECKPOINTS: Dict[str, str] = {
     # - evo2_7b_262k
     # - evo2_7b_microviridae
 }
+
+_LAYERS_INDEX_CACHE: Optional[Dict[str, Any]] = None
+
+
+def _load_layers_index() -> Dict[str, Any]:
+    """Load and cache the layers.json index located alongside this module."""
+    global _LAYERS_INDEX_CACHE
+    if _LAYERS_INDEX_CACHE is None:
+        json_path = Path(__file__).with_name("layers.json")
+        with json_path.open("r", encoding="utf-8") as f:
+            _LAYERS_INDEX_CACHE = json.load(f)
+        assert isinstance(
+            _LAYERS_INDEX_CACHE, dict
+        ), "layers.json must contain a JSON object at top level"
+    return _LAYERS_INDEX_CACHE
 
 
 @mcp.tool
@@ -70,22 +88,28 @@ def list_available_checkpoints() -> List[Dict[str, str]]:
 
 
 @mcp.tool
-def get_embedding_layers(checkpoint: Optional[str] = None) -> Dict[str, Any]:
+def get_embedding_layers(
+    checkpoint: str,
+    which: str = "recommended",
+) -> Dict[str, Any]:
     """Get available layers for embedding extraction from Evo 2 model.
 
     Returns a list of layer names that can be used to extract sequence embeddings
     from the specified Evo 2 checkpoint. Different layers encode varying levels of
-    biological abstraction. For supervised classification tasks (e.g., variant effect
-    prediction), intermediate layers like Block 20 (40B model) often perform best.
-    For mechanistic interpretability (e.g., SAE training), deeper layers like Layer 26
-    are commonly used. For probing tasks, top-level layers (e.g., blocks.26 in 7B model)
-    may be optimal.
+    biological abstraction. Larger models tend to have more nuanced representations but require
+    more computational resources. For supervised classification tasks (e.g., variant effect
+    prediction), intermediate layers like Block 20 (40B model) often perform best. For mechanistic
+    interpretability (e.g., SAE training), deeper layers like Layer 26 are commonly used. For
+    probing tasks, top-level layers (e.g., blocks.26 in 7B model) may be optimal.
 
     Parameters
     ----------
-    checkpoint : str, optional
-        Model checkpoint identifier. If None, returns layers for the default checkpoint.
+    checkpoint : str
+        Model checkpoint identifier.
         See :func:`list_available_checkpoints` for available options.
+    which : {"recommended", "all"}, optional
+        Selection switch. "recommended" returns a curated subset of layers suitable for
+        common downstream tasks; "all" returns every available layer from the model.
 
     Returns
     -------
@@ -98,35 +122,61 @@ def get_embedding_layers(checkpoint: Optional[str] = None) -> Dict[str, Any]:
     Examples
     --------
     >>> layers = get_embedding_layers("evo2_7b")
-    >>> print(f"Available layers: {layers['layers']}")
-    >>> print(f"Recommendation: {layers['info']}")
+    >>> print(f"Layers (recommended): {layers['layers']}")
+    >>> layers_all = get_embedding_layers("evo2_7b", which="all")
+    >>> print(f"Total layers: {len(layers_all['layers'])}")
     """
+    assert which in ("recommended", "all"), "'which' must be either 'recommended' or 'all'"
+
     handle = get_evo2_model(checkpoint)
 
-    # Dummy list of layers - to be replaced with actual layer extraction
-    dummy_layers = [
-        "blocks.0.mlp.l3",
-        "blocks.2.mlp.l3",
-        "blocks.13",
-        "blocks.20",
-        "blocks.26",
-        "blocks.27",
-    ]
+    layers_index = _load_layers_index()
+    assert (
+        handle.checkpoint in layers_index
+    ), f"Checkpoint '{handle.checkpoint}' not found in layers index JSON"
+
+    entry = layers_index[handle.checkpoint]
+    assert "layers" in entry and isinstance(
+        entry["layers"], list
+    ), f"Malformed layers index for checkpoint '{handle.checkpoint}'"
+
+    available_layers: List[str] = entry["layers"]
+
+    # Default to recommended subset unless user asks for all
+
+    selected_layers = (
+        available_layers
+        if which == "all"
+        else _select_recommended_layers(available_layers, handle.checkpoint)
+    )
 
     layer_info = (
-        "Layer selection depends on the task: "
-        "For supervised classification (variant effect prediction), intermediate layers "
-        "(e.g., Block 20 for 40B model) often achieve best performance. "
-        "For mechanistic interpretability (SAE training), deeper layers "
-        "(e.g., Layer 26) reveal meaningful biological features. "
-        "For probing/classification tasks, top-level layers may be optimal."
+        "Layer selection depends on the task. Recommended subset includes early, mid, and deep MLP layers "
+        "(e.g., blocks.2.mlp.l3, blocks.13.mlp.l3, blocks.20.mlp.l3, blocks.26.mlp.l3) along with encoder norms. "
+        "Use which='all' to access every available layer."
     )
 
     return {
         "checkpoint": handle.checkpoint,
-        "layers": dummy_layers,
+        "layers": selected_layers,
         "info": layer_info,
     }
+
+
+def _select_recommended_layers(available_layers: List[str], checkpoint: str) -> List[str]:
+    """Return a curated subset of useful layers if present in the given checkpoint."""
+    # Curated candidates spanning early, middle, and deeper network regions
+    candidates = [
+        "embedding_layer",
+        "blocks.2.mlp.l3",
+        "blocks.13.mlp.l3",
+        "blocks.20.mlp.l3",
+        "blocks.26.mlp.l3",
+    ]
+
+    selected = [name for name in candidates if name in available_layers]
+    assert selected, f"No recommended layers found for checkpoint '{checkpoint}'"
+    return selected
 
 
 @mcp.tool

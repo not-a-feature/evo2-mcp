@@ -18,6 +18,13 @@ Evaluate DNA sequence likelihood under the Evo 2 model for genome quality assess
 
 Extract learned feature representations from intermediate model layers for downstream analysis, similarity search, or machine learning pipelines.
 
+### Embedding Layer Selection
+
+```{autofunction} evo2_mcp.tools.get_embedding_layers
+```
+
+List available layers for embedding extraction from a specific checkpoint to help select the most appropriate layer for your analysis task.
+
 ### Sequence Generation
 
 ```{autofunction} evo2_mcp.tools.generate_sequence
