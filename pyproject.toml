@@ -4,7 +4,7 @@ requires = [ "hatchling" ]
 
 [project]
 name = "evo2_mcp"
-version = "0.2.1"
+version = "0.2.2"
 description = "MCP server for generating, scoring and embedding genomic sequences using Evo 2"
 readme = "README.md"
 license = { file = "LICENSE" }

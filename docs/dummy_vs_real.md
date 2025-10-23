@@ -1,17 +1,12 @@
 # Dummy vs Real Evo2 Implementation
 
 This document explains the dummy implementation system used for testing without requiring full Evo2 model dependencies.
-
-## Overview
-
 The project supports two modes of operation:
 
 1. **Real Mode**: Uses the actual Evo2 models (requires `evo2` package installation and model weights)
 2. **Dummy Mode**: Uses a lightweight mock implementation that mimics the Evo2 interface
 
-## Switching Modes
-
-### Environment Variable
+## Environment Variable
 
 Set the `EVO2_MCP_USE_DUMMY` environment variable:
 

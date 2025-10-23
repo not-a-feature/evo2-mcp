@@ -54,8 +54,6 @@ After completing all Evo2 dependencies, you can install the MCP server using pip
 pip install evo2_mcp
 ```
 
-#### Option C: Install from Source
-
 For development or latest changes:
 
 ```bash

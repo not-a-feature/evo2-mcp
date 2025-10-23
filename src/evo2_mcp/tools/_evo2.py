@@ -68,18 +68,10 @@ def list_available_checkpoints() -> List[Dict[str, str]]:
     sequence scoring, embedding, and generation. Each checkpoint is described
     with its size and context length capabilities.
 
-    Returns
-    -------
-    List[Dict[str, str]]
-        A list of dictionaries, each containing:
-        - "name": The identifier string for the checkpoint
-        - "description": Human-readable description of the model specifications
-
-    Examples
-    --------
-    >>> checkpoints = list_available_checkpoints()
-    >>> for cp in checkpoints:
-    ...     print(f"{cp['name']}: {cp['description']}")
+    Returns:
+        List of dictionaries, each containing:
+            - name: The identifier string for the checkpoint
+            - description: Human-readable description of the model specifications
     """
     return [
         {"name": name, "description": description}
@@ -92,40 +84,32 @@ def get_embedding_layers(
     checkpoint: str,
     which: str = "recommended",
 ) -> Dict[str, Any]:
-    """Get available layers for embedding extraction for a specific Evo 2 model.
+    """Get available layers for embedding extraction from Evo 2 model.
 
     Returns a list of layer names that can be used to extract sequence embeddings
     from the specified Evo 2 checkpoint. Different layers encode varying levels of
     biological abstraction. Larger models tend to have more nuanced representations but require
-    more computational resources. Different checkpoints have a different set of layers.
-    For supervised classification tasks (e.g., variant effect prediction), intermediate layers
-    like Block 20 (40B model) often perform best. For mechanistic interpretability
-    (e.g., SAE training), deeper layers like Layer 26 are commonly used. For probing tasks,
-    top-level layers (e.g., blocks.26 in 7B model) may be optimal.
+    more computational resources. For supervised classification tasks (e.g., variant effect
+    prediction), intermediate layers like Block 20 (40B model) often perform best. For mechanistic
+    interpretability (e.g., SAE training), deeper layers like Layer 26 are commonly used. For
+    probing tasks, top-level layers (e.g., blocks.26 in 7B model) may be optimal.
 
-    Parameters
-    ----------
-    checkpoint : str
-        Model checkpoint identifier. Required as different checkpoints have different layer sets.
-        See :func:`list_available_checkpoints` for available options.
-    which : {"recommended", "all"}, optional
-        Selection switch. "recommended" returns a curated subset of layers suitable for
-        common downstream tasks; "all" returns every available layer from the model.
+    Args:
+        checkpoint: Model checkpoint identifier. See `list_available_checkpoints()` for options.
+        which: Selection switch. "recommended" returns a curated subset of layers suitable for
+            common downstream tasks; "all" returns every available layer from the model.
 
-    Returns
-    -------
-    Dict[str, Any]
+    Returns:
         Dictionary containing:
-        - "checkpoint": The checkpoint identifier
-        - "layers": List of layer names available for embedding extraction
-        - "info": Information about layer selection for different tasks
+            - checkpoint: The checkpoint identifier
+            - layers: List of layer names available for embedding extraction
+            - info: Information about layer selection for different tasks
 
-    Examples
-    --------
-    >>> layers = get_embedding_layers("evo2_7b")
-    >>> print(f"Layers (recommended): {layers['layers']}")
-    >>> layers_all = get_embedding_layers("evo2_7b", which="all")
-    >>> print(f"Total layers: {len(layers_all['layers'])}")
+    Example:
+        >>> layers = get_embedding_layers("evo2_7b")
+        >>> print(f"Layers (recommended): {layers['layers']}")
+        >>> layers_all = get_embedding_layers("evo2_7b", which="all")
+        >>> print(f"Total layers: {len(layers_all['layers'])}")
     """
     assert which in ("recommended", "all"), "'which' must be either 'recommended' or 'all'"
 
@@ -192,36 +176,26 @@ def score_sequence(
     Returns the model's log probability score for the entire sequence, which can
     be reduced using either mean or sum aggregation.
 
-    Parameters
-    ----------
-    sequence : str
-        DNA sequence to score. Should contain standard IUPAC nucleotides (A, C, G, T).
-    checkpoint : str, optional
-        Model checkpoint identifier. If None, uses the default checkpoint.
-        See :func:`list_available_checkpoints` for available options.
-    reduce_method : str, default="mean"
-        Method for aggregating per-token scores. Must be either:
-        - "mean": Average log probability across all tokens
-        - "sum": Sum of all log probabilities
+    Args:
+        sequence: DNA sequence to score. Should contain standard IUPAC nucleotides (A, C, G, T, N).
+        checkpoint: Model checkpoint identifier. If None, uses the default checkpoint.
+            See `list_available_checkpoints()` for available options.
+        reduce_method: Method for aggregating per-token scores. Must be either "mean"
+            (average log probability across all tokens) or "sum" (sum of all log probabilities).
 
-    Returns
-    -------
-    Dict[str, Any]
+    Returns:
         Dictionary containing:
-        - "checkpoint": The checkpoint identifier used
-        - "sequence": The normalized input sequence
-        - "reduce_method": The reduction method applied
-        - "scores": List of computed score values (typically length 1)
+            - checkpoint: The checkpoint identifier used
+            - sequence: The normalized input sequence
+            - reduce_method: The reduction method applied
+            - scores: List of computed score values (typically length 1)
 
-    Raises
-    ------
-    AssertionError
-        If sequence is empty or reduce_method is not "mean" or "sum".
+    Raises:
+        AssertionError: If sequence is empty or reduce_method is not "mean" or "sum".
 
-    Examples
-    --------
-    >>> scores = score_sequence("ATCGATCG")
-    >>> print(f"Score: {scores['scores'][0]}")
+    Example:
+        >>> scores = score_sequence("ATCGATCG")
+        >>> print(f"Score: {scores['scores'][0]}")
     """
     assert isinstance(sequence, str) and sequence.strip(), "'sequence' must be a non-empty string"
     assert reduce_method in ("mean", "sum"), "'reduce_method' must be either 'mean' or 'sum'"
@@ -251,36 +225,27 @@ def embed_sequence(
     representations and can be used for downstream analysis or as features
     for other tasks.
 
-    Parameters
-    ----------
-    sequence : str
-        DNA sequence to embed. Should contain standard IUPAC nucleotides (A, C, G, T).
-    checkpoint : str, optional
-        Model checkpoint identifier. If None, uses the default checkpoint.
-        See :func:`list_available_checkpoints` for available options.
-    layer_name : str, default="blocks.2.mlp.l3"
-        Name of the model layer from which to extract embeddings.
-        Common choices include intermediate MLP layers and attention blocks.
+    Args:
+        sequence: DNA sequence to embed. Should contain standard IUPAC nucleotides (A, C, G, T).
+        checkpoint: Model checkpoint identifier. If None, uses the default checkpoint.
+            See `list_available_checkpoints()` for available options.
+        layer_name: Name of the model layer from which to extract embeddings.
+            Common choices include intermediate MLP layers and attention blocks.
 
-    Returns
-    -------
-    Dict[str, Any]
+    Returns:
         Dictionary containing:
-        - "checkpoint": The checkpoint identifier used
-        - "sequence": The normalized input sequence
-        - "layer_name": The layer from which embeddings were extracted
-        - "embedding": 2D list of embedding vectors (shape: [sequence_length, embedding_dim])
+            - checkpoint: The checkpoint identifier used
+            - sequence: The normalized input sequence
+            - layer_name: The layer from which embeddings were extracted
+            - embedding: 2D list of embedding vectors (shape: [sequence_length, embedding_dim])
 
-    Raises
-    ------
-    AssertionError
-        If sequence or layer_name are empty strings.
+    Raises:
+        AssertionError: If sequence or layer_name are empty strings.
 
-    Examples
-    --------
-    >>> embeddings = embed_sequence("ATCGATCG")
-    >>> embedding_matrix = embeddings['embedding']
-    >>> print(f"Embedding shape: {len(embedding_matrix)} tokens")
+    Example:
+        >>> embeddings = embed_sequence("ATCGATCG")
+        >>> embedding_matrix = embeddings['embedding']
+        >>> print(f"Embedding shape: {len(embedding_matrix)} tokens")
     """
     assert isinstance(sequence, str) and sequence.strip(), "'sequence' must be a non-empty string"
     assert isinstance(layer_name, str) and layer_name, "'layer_name' must be a non-empty string"
@@ -311,45 +276,33 @@ def generate_sequence(
     using the Evo 2 language model. The generation process uses nucleus sampling
     (top-k) for controlled diversity.
 
-    Parameters
-    ----------
-    prompt : str
-        Starting DNA sequence to condition generation. Should contain standard
-        IUPAC nucleotides (A, C, G, T).
-    checkpoint : str, optional
-        Model checkpoint identifier. If None, uses the default checkpoint.
-        See :func:`list_available_checkpoints` for available options.
-    n_tokens : int, default=400
-        Number of new tokens to generate. Must be a positive integer.
-    temperature : float, default=1.0
-        Sampling temperature controlling randomness. Higher values (>1.0) increase
-        diversity; lower values (<1.0) make generation more deterministic.
-        Must be greater than 0.
-    top_k : int, default=4
-        Number of highest probability nucleotides to sample from at each step.
-        Must be positive. Typical values: 4 (all nucleotides), 2-3 (more constrained).
+    Args:
+        prompt: Starting DNA sequence to condition generation. Should contain standard
+            IUPAC nucleotides (A, C, G, T, N).
+        checkpoint: Model checkpoint identifier. If None, uses the default checkpoint.
+            See `list_available_checkpoints()` for available options.
+        n_tokens: Number of new tokens to generate. Must be a positive integer.
+        temperature: Sampling temperature controlling randomness. Higher values (>1.0) increase
+            diversity; lower values (<1.0) make generation more deterministic. Must be greater than 0.
+        top_k: Number of highest probability nucleotides to sample from at each step.
+            Must be positive. Typical values: 5 (all nucleotides including N), 4 (more constrained).
 
-    Returns
-    -------
-    Dict[str, Any]
+    Returns:
         Dictionary containing:
-        - "checkpoint": The checkpoint identifier used
-        - "prompt": The normalized input prompt sequence
-        - "generated_sequence": The newly generated DNA sequence
-        - "n_tokens": Number of tokens generated
-        - "temperature": Temperature value used
-        - "top_k": Top-k value used
+            - checkpoint: The checkpoint identifier used
+            - prompt: The normalized input prompt sequence
+            - generated_sequence: The newly generated DNA sequence
+            - n_tokens: Number of tokens generated
+            - temperature: Temperature value used
+            - top_k: Top-k value used
 
-    Raises
-    ------
-    AssertionError
-        If prompt is empty, n_tokens <= 0, temperature <= 0, or top_k <= 0.
+    Raises:
+        AssertionError: If prompt is empty, n_tokens <= 0, temperature <= 0, or top_k <= 0.
 
-    Examples
-    --------
-    >>> result = generate_sequence("ATCGATCG", n_tokens=100, temperature=0.8)
-    >>> full_sequence = result['prompt'] + result['generated_sequence']
-    >>> print(f"Generated sequence: {full_sequence}")
+    Example:
+        >>> result = generate_sequence("ATCGATCG", n_tokens=100, temperature=0.8)
+        >>> full_sequence = result['prompt'] + result['generated_sequence']
+        >>> print(f"Generated sequence: {full_sequence}")
     """
     assert isinstance(prompt, str) and prompt.strip(), "'prompt' must be a non-empty string"
     assert isinstance(n_tokens, int) and n_tokens > 0, "'n_tokens' must be a positive integer"
@@ -387,50 +340,38 @@ def score_snp(
     how much the mutation changes the model's likelihood of the sequence. Negative deltas
     indicate the mutation decreases likelihood; positive deltas increase it.
 
-    Parameters
-    ----------
-    sequence : str
-        Reference DNA sequence. Must be at least 3 nucleotides long to have a
-        well-defined center position. Should contain standard IUPAC nucleotides (A, C, G, T).
-    alternative_allele : str
-        Alternative nucleotide at the center position. Must be a single nucleotide
-        (one of A, C, G, T) that differs from the reference nucleotide at the center.
-    checkpoint : str, optional
-        Model checkpoint identifier. If None, uses the default checkpoint.
-        See :func:`list_available_checkpoints` for available options.
-    reduce_method : str, default="mean"
-        Method for aggregating per-token scores. Must be either:
-        - "mean": Average log probability across all tokens
-        - "sum": Sum of all log probabilities
+    Args:
+        sequence: Reference DNA sequence. Must be at least 3 nucleotides long to have a
+            well-defined center position. Should contain standard IUPAC nucleotides (A, C, G, T, N).
+        alternative_allele: Alternative nucleotide at the center position. Must be a single
+            nucleotide (one of A, C, G, T, N) that differs from the reference nucleotide at the center.
+        checkpoint: Model checkpoint identifier. If None, uses the default checkpoint.
+            See `list_available_checkpoints()` for available options.
+        reduce_method: Method for aggregating per-token scores. Must be either "mean"
+            (average log probability across all tokens) or "sum" (sum of all log probabilities).
 
-    Returns
-    -------
-    Dict[str, Any]
+    Returns:
         Dictionary containing:
-        - "checkpoint": The checkpoint identifier used
-        - "original_sequence": The input reference sequence (uppercase)
-        - "mutated_sequence": The sequence with the mutation applied at center position
-        - "center_position": Index of the mutated position (0-indexed)
-        - "reference_allele": The original nucleotide at the center position
-        - "alternative_allele": The alternative nucleotide used
-        - "reduce_method": The reduction method applied
-        - "original_score": Log probability score of the reference sequence
-        - "mutated_score": Log probability score of the mutated sequence
-        - "score_delta": Difference (mutated_score - original_score). Indicates mutation effect.
+            - checkpoint: The checkpoint identifier used
+            - original_sequence: The input reference sequence (uppercase)
+            - mutated_sequence: The sequence with the mutation applied at center position
+            - center_position: Index of the mutated position (0-indexed)
+            - reference_allele: The original nucleotide at the center position
+            - alternative_allele: The alternative nucleotide used
+            - reduce_method: The reduction method applied
+            - original_score: Log probability score of the reference sequence
+            - mutated_score: Log probability score of the mutated sequence
+            - score_delta: Difference (mutated_score - original_score). Indicates mutation effect.
 
-    Raises
-    ------
-    AssertionError
-        If sequence length < 3, alternative_allele is not a single valid nucleotide,
-        sequence contains invalid nucleotides, or alternative_allele matches the
-        reference nucleotide.
+    Raises:
+        AssertionError: If sequence length < 3, alternative_allele is not a single valid nucleotide,
+            sequence contains invalid nucleotides, or alternative_allele matches the reference nucleotide.
 
-    Examples
-    --------
-    >>> result = score_snp("ATCGATCG", "A")  # Center is T, mutate to A
-    >>> print(f"Score delta: {result['score_delta']}")
-    >>> print(f"Original: {result['original_sequence']}")
-    >>> print(f"Mutated: {result['mutated_sequence']}")
+    Example:
+        >>> result = score_snp("ATCGATCG", "A")  # Center is T, mutate to A
+        >>> print(f"Score delta: {result['score_delta']}")
+        >>> print(f"Original: {result['original_sequence']}")
+        >>> print(f"Mutated: {result['mutated_sequence']}")
     """
     assert isinstance(sequence, str) and sequence.strip(), "'sequence' must be a non-empty string"
     assert (

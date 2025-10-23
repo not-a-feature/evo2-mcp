@@ -27,10 +27,12 @@ embed_sequence = _unwrap("embed_sequence")
 generate_sequence = _unwrap("generate_sequence")
 score_snp = _unwrap("score_snp")
 list_available_checkpoints = _unwrap("list_available_checkpoints")
+get_embedding_layers = _unwrap("get_embedding_layers")
 
 __all__ = [
     "embed_sequence",
     "generate_sequence",
+    "get_embedding_layers",
     "list_available_checkpoints",
     "score_sequence",
     "score_snp",

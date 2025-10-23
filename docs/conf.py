@@ -5,13 +5,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 # -- Path setup --------------------------------------------------------------
-# import sys
 from datetime import datetime
 from importlib.metadata import metadata
 from pathlib import Path
-
-HERE = Path(__file__).parent
-
 
 # -- Project information -----------------------------------------------------
 
@@ -56,27 +52,21 @@ extensions = [
     "sphinx.ext.mathjax",
     "IPython.sphinxext.ipython_console_highlighting",
     "sphinxext.opengraph",
-    "autoapi.extension",
 ]
-autoapi_dirs = ["../src/evo2_mcp"]
-autoapi_root = "autoapi"
-autoapi_ignore = ["*/tests/*"]
-autoapi_options = [
-    "members",
-    "undoc-members",
-    "show-inheritance",
-    "show-module-summary",
-]
-autoapi_keep_files = False
 
 
 autodoc_member_order = "groupwise"
+autodoc_typehints = "description"
+autodoc_typehints_description_target = "documented"
 default_role = "literal"
-napoleon_google_docstring = False
-napoleon_numpy_docstring = True
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
 napoleon_include_init_with_doc = False
 napoleon_use_rtype = True  # having a separate entry generally helps readability
 napoleon_use_param = True
+napoleon_preprocess_types = True
+napoleon_type_aliases = None
+napoleon_attr_annotations = True
 myst_heading_anchors = 6  # create anchors for h1-h6
 myst_enable_extensions = [
     "amsmath",

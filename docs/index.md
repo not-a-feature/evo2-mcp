@@ -7,8 +7,7 @@
 :maxdepth: 2
 
 installation
-dummy_vs_real
-changelog
+
 ```
 
 ```{toctree}
@@ -19,8 +18,11 @@ tools
 ```
 
 ```{toctree}
-:caption: API Documentation
+:caption: Development
 :maxdepth: 2
 
-autoapi/index
+development
+dummy_vs_real
+changelog
 ```
+
