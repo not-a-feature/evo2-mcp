@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Python 3.12 or newer**
+- **Python 3.12**
 - **Conda** (recommended for managing CUDA dependencies)
 - **NVIDIA GPU** with CUDA support (required for Evo2)
 
