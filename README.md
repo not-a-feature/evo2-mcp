@@ -21,7 +21,7 @@ The evo2-mcp server exposes [Evo 2](https://github.com/ArcInstitute/evo2) as a M
 
 ## Getting Started
 
-**Prerequisites**: Python 3.12 or newer
+**Prerequisites**: Python 3.12
 
 1. **Install Evo2 dependencies**: See [Installation Guide][installation] for details.
    ```bash
